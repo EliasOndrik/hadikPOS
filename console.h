@@ -4,6 +4,8 @@
 #endif //HADIKPOS_CONSOLE_H
 #include <stdio.h>
 #include <stdbool.h>
+#define CONSOLE_WIDTH 60
+#define CONSOLE_HEIGHT 30
 
 void MoveTo(int x, int y);
 void DrawRect(int x, int y, int width, int height);

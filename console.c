@@ -16,7 +16,7 @@ void DrawRect(int x, int y, int width, int height) {
 }
 
 void DrawDot(int x, int y) {
-    MoveTo(x*2 + 1,y);
+    MoveTo(x*2 + 1,y + 1);
     Write("  ");
 }
 
