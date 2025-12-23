@@ -4,29 +4,25 @@
 #include <time.h>
 #include <unistd.h>
 #include "console.h"
+#include "menu.h"
 #include "snake.h"
 
 int main(void) {
     srand(time(NULL));
     ClearScreen();
     SetCursorVisibility(false);
-    SetBackgroundColor(6);
-    DrawRect(15,0,30,30);
-    SetBackgroundColor(4);
-    DrawRect(0,0,15,30);
-    DrawRect( 60-15,0,15,30);
+    DrawMenu();
     snake_map_t snake_map;
+    menu_t menu;
+    CreateButtons(&menu);
     SetSnakeMap(&snake_map);
     PlaceSnakeOnMap(&snake_map);
+    UpdateMenu(&menu,' ');
+    snake_map.snake.isActive = false;
     while (1) {
-
-        if (_kbhit()) {
-            char key = (char)_getch();
-            if (key == 'q' || key == 27) {
-                break;
-            }
+        if (kbhit()) {
+            char key = (char)getch();
             if (key == 'w' && snake_map.snake.direction.y != 1) {
-
                 SetPositionXY(&snake_map.snake.direction,0,-1);
             }
             if (key == 's' && snake_map.snake.direction.y != -1) {
@@ -38,8 +34,22 @@ int main(void) {
             if (key == 'd' && snake_map.snake.direction.x != -1) {
                 SetPositionXY(&snake_map.snake.direction,+1,0);
             }
+            int state = UpdateMenu(&menu,key);
+            if (state == -1) {
+                break;
+            }
+            if (state == 0) {
+                snake_map.snake.isActive = true;
+            } else {
+                snake_map.snake.isActive = false;
+            }
         }
+
         Update(&snake_map);
+        if (!snake_map.snake.isAlive) {
+            SetSnakeMap(&snake_map);
+            PlaceSnakeOnMap(&snake_map);
+        }
         usleep(100*1000);
 
     }

@@ -11,7 +11,9 @@ add_executable(hadikPOS main.c
         server.c
         server.h
         snake.c
-        snake.h)
+        snake.h
+        menu.c
+        menu.h)
 
 if (WIN32)
     target_link_libraries(hadikPOS ws2_32)

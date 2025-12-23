@@ -15,6 +15,14 @@ void DrawRect(int x, int y, int width, int height) {
     }
 }
 
+void DrawRectFull(int x, int y, int width, int height) {
+    for (int i = x; i < x + width; i++) {
+        for (int j = y; j < y + height; j++) {
+            DrawDot(i,j);
+        }
+    }
+}
+
 void DrawDot(int x, int y) {
     MoveTo(x*2 + 1,y + 1);
     Write("  ");

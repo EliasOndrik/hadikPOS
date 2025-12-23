@@ -9,6 +9,7 @@
 
 void MoveTo(int x, int y);
 void DrawRect(int x, int y, int width, int height);
+void DrawRectFull(int x, int y, int width, int height);
 void DrawDot(int x, int y);
 void SetTextColor(int color);
 void SetBackgroundColor(int color);
