@@ -1,0 +1,4 @@
+#ifndef HADIKPOS_CLIENT_H
+#define HADIKPOS_CLIENT_H
+
+#endif //HADIKPOS_CLIENT_H

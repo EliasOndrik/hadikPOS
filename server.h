@@ -1,0 +1,4 @@
+#ifndef HADIKPOS_SERVER_H
+#define HADIKPOS_SERVER_H
+
+#endif //HADIKPOS_SERVER_H
