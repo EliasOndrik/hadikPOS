@@ -34,10 +34,13 @@ typedef struct Snake {
     position_t tailPos;
     position_t headPos;
     position_t direction;
+    position_t tailHelp;
     int bodyColor;
     int headColor;
     int size;
+    unsigned int time;
     int playerNumber;
+    game_size_t gameSize;
     bool isAlive;
     bool isActive;
 } snake_t;
@@ -51,8 +54,12 @@ typedef struct SnakeMap {
 } snake_map_t;
 
 void SetSnakeMap(snake_map_t* snake_map);
+void DrawSnakeMap(snake_map_t* snake_map);
 void PlaceSnakeOnMap(snake_map_t* snake_map);
+void DrawSnakeOnMap(snake_map_t* snake_map);
 void Update(snake_map_t* snake_map);
+void Draw(snake_map_t* snake_map);
+void UpdateApple(snake_map_t *snake_map);
 void DrawApple(snake_map_t *snake_map);
 void SetPositionTo(position_t *position, position_t const *newPosition);
 void SetPositionXY(position_t* position, int x, int y);
@@ -67,6 +74,7 @@ void AbsolutePosition(position_t *position, int x, int y,game_size_t const * gam
 int RelativeOffsetX(game_size_t const * gameSize);
 int RelativeOffsetY(game_size_t const * gameSize);
 void RelativePosition(position_t *position, int x, int y,game_size_t const * gameSize);
+void DrawSnakeStats(snake_t * snake);
 
 
 

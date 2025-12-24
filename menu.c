@@ -45,6 +45,14 @@ void DrawBorder() {
     SetBackgroundColor(4);
     DrawRect(0,0,15,CONSOLE_HEIGHT);
     DrawRect(CONSOLE_WIDTH-15,0,15,CONSOLE_HEIGHT);
+    SetBackgroundColor(2);
+    DrawRect(2,2, 11,5);
+    SetBackgroundColor(3);
+    DrawRect(2,CONSOLE_HEIGHT - 7, 11,5);
+    SetBackgroundColor(5);
+    DrawRect(CONSOLE_WIDTH - 13 ,2, 11,5);
+    SetBackgroundColor(7);
+    DrawRect(CONSOLE_WIDTH - 13,CONSOLE_HEIGHT - 7, 11,5);
 }
 
 void DrawMenu() {
@@ -110,12 +118,14 @@ void DrawGameSetting(menu_t * menu, char key) {
             }
         }
     }
+
+
     if (key == '\r' || key == 'e') {
         if (menu->buttons[0].isActive) {
-
+            menu->gameSize = (menu->gameSize+1)%3;
         }
         if (menu->buttons[1].isActive) {
-
+            menu->gameType = (menu->gameType+1)%2;
         }
         if (menu->buttons[2].isActive) {
             ResetTextEffect();
@@ -128,19 +138,44 @@ void DrawGameSetting(menu_t * menu, char key) {
         menu->menuType = 1;
         ResetTextEffect();
         DrawRectFull((CONSOLE_WIDTH-BUTTON_WIDTH)/2,(CONSOLE_HEIGHT/2)-BUTTON_HEIGHT-1,BUTTON_WIDTH, 11);
+        menu->buttons[0].isActive =true;
+        menu->buttons[1].isActive = false;
+        menu->buttons[2].isActive = false;
         DrawMainMenu(menu,' ');
         return;
     }
-    DrawButton((CONSOLE_WIDTH-BUTTON_WIDTH)/2,(CONSOLE_HEIGHT/2)-BUTTON_HEIGHT-1,menu->buttons[0].isActive,"< 28X28 >");
-    DrawButton((CONSOLE_WIDTH-BUTTON_WIDTH)/2,(CONSOLE_HEIGHT/2),menu->buttons[1].isActive,"< Loop >");
+    char * size = "< 28X28 >";
+    switch (menu->gameSize) {
+        case SMALL:
+            size = "< 10X10 >";
+            break;
+        case MEDIUM:
+            size = "< 19X19 >";
+            break;
+        case BIG:
+            size = "< 28X28 >";
+            break;
+    }
+    char * game = "< Loop >";
+    switch (menu->gameType) {
+        case LOOP:
+            game = "< Loop >";
+            break;
+        case EDGE:
+            game = "< Edge >";
+            break;
+    }
+    DrawButton((CONSOLE_WIDTH-BUTTON_WIDTH)/2,(CONSOLE_HEIGHT/2)-BUTTON_HEIGHT-1,menu->buttons[0].isActive,size);
+    DrawButton((CONSOLE_WIDTH-BUTTON_WIDTH)/2,(CONSOLE_HEIGHT/2),menu->buttons[1].isActive,game);
     DrawButton((CONSOLE_WIDTH-BUTTON_WIDTH)/2,(CONSOLE_HEIGHT/2)+BUTTON_HEIGHT + 1,menu->buttons[2].isActive,"Continue");
 }
 
 int UpdateMenu(menu_t * menu,char key) {
     switch (menu->menuType) {
         case 0 :
-            if (key == 'q') {
-                menu->menuType = -1;
+            if (key == 'q' || key == 27) {
+                menu->menuType = 2;
+                DrawGameSetting(menu,' ');
             }
             break;
         case 1:
@@ -162,4 +197,6 @@ void CreateButtons(menu_t * menu) {
     }
     menu->buttons[0].isActive = true;
     menu->menuType = 1;
+    menu->gameSize = BIG;
+    menu->gameType = LOOP;
 }

@@ -5,7 +5,7 @@
 #include <unistd.h>
 #include "console.h"
 #include "menu.h"
-#include "snake.h"
+
 
 int main(void) {
     srand(time(NULL));
@@ -16,7 +16,9 @@ int main(void) {
     menu_t menu;
     CreateButtons(&menu);
     SetSnakeMap(&snake_map);
+    DrawSnakeMap(&snake_map);
     PlaceSnakeOnMap(&snake_map);
+    DrawSnakeOnMap(&snake_map);
     UpdateMenu(&menu,' ');
     snake_map.snake.isActive = false;
     while (1) {
@@ -42,14 +44,23 @@ int main(void) {
                 snake_map.snake.isActive = true;
             } else {
                 snake_map.snake.isActive = false;
+                snake_map.gameSize = menu.gameSize;
+                snake_map.gameType = menu.gameType;
+                snake_map.snake.isAlive = false;
             }
         }
-
-        Update(&snake_map);
-        if (!snake_map.snake.isAlive) {
-            SetSnakeMap(&snake_map);
-            PlaceSnakeOnMap(&snake_map);
+        if (snake_map.snake.isActive) {
+            if (!snake_map.snake.isAlive) {
+                SetSnakeMap(&snake_map);
+                DrawSnakeMap(&snake_map);
+                PlaceSnakeOnMap(&snake_map);
+                DrawSnakeOnMap(&snake_map);
+            }
+            Update(&snake_map);
+            Draw(&snake_map);
+            DrawApple(&snake_map);
         }
+
         usleep(100*1000);
 
     }

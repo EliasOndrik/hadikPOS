@@ -6,10 +6,6 @@ set(CMAKE_C_STANDARD 11)
 add_executable(hadikPOS main.c
         console.c
         console.h
-        client.c
-        client.h
-        server.c
-        server.h
         snake.c
         snake.h
         menu.c
@@ -19,3 +15,18 @@ if (WIN32)
     target_link_libraries(hadikPOS ws2_32)
 endif ()
 
+add_executable(hadikServer server.h
+                server.c
+                )
+
+if (WIN32)
+    target_link_libraries(hadikServer ws2_32)
+endif ()
+
+add_executable(hadikClient client.h
+        client.c
+)
+
+if (WIN32)
+    target_link_libraries(hadikClient ws2_32)
+endif ()

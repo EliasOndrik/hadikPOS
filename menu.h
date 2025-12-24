@@ -3,6 +3,7 @@
 
 #endif //HADIKPOS_MENU_H
 #include "console.h"
+#include "snake.h"
 #include <conio.h>
 
 #define BUTTON_WIDTH 10
@@ -19,6 +20,8 @@ typedef struct Button {
 typedef struct Menu {
     button_t buttons[BUTTON_COUNT];
     int menuType;
+    game_size_t gameSize;
+    game_type_t gameType;
 } menu_t;
 
 void DrawMenu();
