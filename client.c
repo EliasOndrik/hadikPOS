@@ -1,14 +1,4 @@
 #include "client.h"
-#include <stdio.h>
-#include <string.h>
-#include <unistd.h>
-#ifdef _WIN32
-#include <winsock2.h>
-#include <ws2tcpip.h>
-#else
-#include <sys/socket.h>
-#include <arpa/inet.h>
-#endif
 
 #define PORT 14589
 #define BUFFER_SIZE 1024
@@ -20,6 +10,9 @@ int main() {
     int client_fd = (int)socket(AF_INET, SOCK_STREAM, 0);
     if (client_fd < 0) {
         perror("Vytvorenie socketu zlyhalo\n");
+#ifdef _WIN32
+        WSACleanup();
+#endif
         return -1;
     }
     printf("Socket vytvoreny\n");
@@ -30,37 +23,101 @@ int main() {
     if (inet_pton(AF_INET, "127.0.0.1", &server_addr.sin_addr) < 0) {
         perror("Neplatna adresa\n");
         close(client_fd);
+#ifdef _WIN32
+        WSACleanup();
+#endif
         return -2;
     }
     if (connect(client_fd, (struct sockaddr *)&server_addr, sizeof(server_addr)) < 0) {
         perror("Pripojenie zlyhalo\n");
         close(client_fd);
+#ifdef _WIN32
+        WSACleanup();
+#endif
         return -3;
     }
     printf("Pripojeny k serveru\n");
-    printf("Zadaj spravu(quit = koniec): \n");
-    char buffer[BUFFER_SIZE];
+    srand(time(NULL));
+    ClearScreen();
+    SetCursorVisibility(false);
+    client_snake_t snake;
+    DrawMenu();
+    menu_t menu;
+    CreateButtons(&menu);
+    UpdateMenu(&menu,' ');
+
+    char buffer[BUFFER_SIZE] = {0};
+    int bytes_read = recv(client_fd, buffer, BUFFER_SIZE - 1, 0);
+    if (bytes_read < 0) {
+        printf("Server sa odpojil\n");
+        close(client_fd);
+#ifdef _WIN32
+        WSACleanup();
+#endif
+        return -4;
+    }
+    ReadString(buffer, &snake);
+    snake.snake.isActive = false;
+    bool alive  = snake.snake.isAlive;
+    bool active = snake.snake.isActive;
     while (1) {
-        printf("> ");
-        fflush(stdout);
-        if (fgets(buffer, BUFFER_SIZE, stdin) == NULL) {
-            break;
-        }
-        send(client_fd, buffer, (int)strlen(buffer), 0);
-        if (strncmp(buffer, "quit", 4) == 0) {
-            printf("Ukoncujem\n");
-            break;
+        if (kbhit()) {
+            char key = (char)getch();
+            if (key == 'w' && snake.snake.direction.y != 1) {
+                SetPositionXY(&snake.snake.direction,0,-1);
+            }
+            if (key == 's' && snake.snake.direction.y != -1) {
+                SetPositionXY(&snake.snake.direction,0,+1);
+            }
+            if (key == 'a' && snake.snake.direction.x != 1) {
+                SetPositionXY(&snake.snake.direction,-1,0);
+            }
+            if (key == 'd' && snake.snake.direction.x != -1) {
+                SetPositionXY(&snake.snake.direction,+1,0);
+            }
+            int state = UpdateMenu(&menu,key);
+            if (state == -1) {
+                break;
+            }
+            if (state == 0) {
+                snake.snake.isActive = true;
+            } else {
+                snake.snake.isActive = false;
+                snake.gameSize = menu.gameSize;
+                snake.gameType = menu.gameType;
+                snake.snake.isAlive = false;
+            }
+            alive  = snake.snake.isAlive;
+            active = snake.snake.isActive;
         }
         memset(buffer, 0, BUFFER_SIZE);
-        int bytes_read = recv(client_fd, buffer, BUFFER_SIZE - 1, 0);
+        GiveServerString(&snake, buffer);
+        send(client_fd, buffer, (int)strlen(buffer), 0);
+
+        memset(buffer, 0, BUFFER_SIZE);
+        bytes_read = recv(client_fd, buffer, BUFFER_SIZE - 1, 0);
         if (bytes_read < 0) {
             printf("Server sa odpojil\n");
             break;
         }
-        printf("Echo zo servera : %s\n",buffer);
+        ReadString(buffer, &snake);
+
+        if (active) {
+            if (!alive) {
+                DrawSnakeMap(&snake);
+                DrawSnakeOnMap(&snake);
+            }
+            Draw(&snake);
+            DrawApple(&snake);
+        }
+        active = snake.snake.isActive;
+        alive  = snake.snake.isAlive;
+        usleep(100*1000);
     }
     close(client_fd);
-    printf("Klient ukonceny\n");
+    ResetTextEffect();
+    SetCursorVisibility(true);
+    ClearScreen();
 #ifdef _WIN32
     WSACleanup();
 #endif

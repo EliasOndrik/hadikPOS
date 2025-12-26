@@ -1,16 +1,4 @@
 #include "server.h"
-#include <string.h>
-#include <stdio.h>
-#include <unistd.h>
-#ifdef _WIN32
-#include <winsock2.h>
-#include <ws2tcpip.h>
-#else
-#include <asm-generic/socket.h>
-#include <netinet/in.h>
-#include <sys/socket.h>
-#include <arpa/inet.h>
-#endif
 
 #define PORT 14589
 #define BUFFER_SIZE 1024
@@ -20,7 +8,7 @@ int main() {
     struct WSAData wsaData;
     WSAStartup(MAKEWORD(2,2), &wsaData);
 #endif
-
+    srand(time(NULL));
     int server_fd = (int)socket(AF_INET, SOCK_STREAM, 0);
     if (server_fd < 0) {
         perror("Chyba pri vytvarani socketu");
@@ -50,6 +38,9 @@ int main() {
     }
     printf("Server pocuva ...\n");
 
+    snake_map_t snakeMap;
+    SetSnakeMap(&snakeMap);
+
     int client_fd;
     struct sockaddr_in client_address;
     socklen_t client_len;
@@ -62,7 +53,12 @@ int main() {
     }
     printf("Klient pripojeny: %s:%d\n",inet_ntoa(client_address.sin_addr),ntohs(client_address.sin_port));
 
+    PlaceSnakeOnMap(&snakeMap);
+
     char buffer[BUFFER_SIZE];
+    memset(buffer, 0, BUFFER_SIZE);
+    ToString(&snakeMap.clientSnake,buffer);
+    send(client_fd, buffer, (int)strlen(buffer), 0);
     while (1) {
         memset(buffer, 0, BUFFER_SIZE);
         int bytes_read = recv(client_fd, buffer, BUFFER_SIZE-1, 0);
@@ -70,12 +66,16 @@ int main() {
             printf("Klient sa odpojil\n");
             break;
         }
-        printf("Prijata sprava: %s\n", buffer);
-
-        if (strncmp(buffer, "quit",4) == 0) {
-            printf("Ukoncujem spojenie\n");
-            break;
+        ServerReadString(buffer, &snakeMap.clientSnake);
+        if (snakeMap.clientSnake.snake.isActive) {
+            if (!snakeMap.clientSnake.snake.isAlive) {
+                SetSnakeMap(&snakeMap);
+                PlaceSnakeOnMap(&snakeMap);
+            }
+            Update(&snakeMap);
         }
+        memset(buffer, 0, BUFFER_SIZE);
+        ToString(&snakeMap.clientSnake,buffer);
         send(client_fd, buffer, (int)strlen(buffer), 0);
     }
     close(client_fd);

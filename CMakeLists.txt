@@ -16,8 +16,12 @@ if (WIN32)
 endif ()
 
 add_executable(hadikServer server.h
-                server.c
-                )
+        server.c
+        snake.h
+        snake.c
+        console.h
+        console.c
+)
 
 if (WIN32)
     target_link_libraries(hadikServer ws2_32)
@@ -25,6 +29,12 @@ endif ()
 
 add_executable(hadikClient client.h
         client.c
+        snake.h
+        snake.c
+        console.h
+        console.c
+        menu.c
+        menu.h
 )
 
 if (WIN32)

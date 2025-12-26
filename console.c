@@ -28,7 +28,7 @@ void DrawDot(int x, int y) {
     Write("  ");
 }
 
-void SetTextColor(int color) {
+void TextColor(int color) {
     if (color < 0) {
         color *= -1;
     }
