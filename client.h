@@ -14,4 +14,18 @@
 #include <arpa/inet.h>
 #endif
 #include <conio.h>
+#include <pthread.h>
 #include "menu.h"
+
+typedef struct ThreadArgs {
+    int client_fd;
+    client_snake_t* snake;
+    menu_t* menu;
+    pthread_mutex_t* mutex;
+    pthread_cond_t* sendData;
+    int isRunning;
+    bool canUpdate;
+} thread_args_t;
+
+void * InputThread(void * arg);
+void * DrawThread(void* arg);

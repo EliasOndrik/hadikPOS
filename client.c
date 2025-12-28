@@ -58,62 +58,28 @@ int main() {
     }
     ReadString(buffer, &snake);
     snake.snake.isActive = false;
-    bool alive  = snake.snake.isAlive;
-    bool active = snake.snake.isActive;
-    while (1) {
-        if (kbhit()) {
-            char key = (char)getch();
-            if (key == 'w' && snake.snake.direction.y != 1) {
-                SetPositionXY(&snake.snake.direction,0,-1);
-            }
-            if (key == 's' && snake.snake.direction.y != -1) {
-                SetPositionXY(&snake.snake.direction,0,+1);
-            }
-            if (key == 'a' && snake.snake.direction.x != 1) {
-                SetPositionXY(&snake.snake.direction,-1,0);
-            }
-            if (key == 'd' && snake.snake.direction.x != -1) {
-                SetPositionXY(&snake.snake.direction,+1,0);
-            }
-            int state = UpdateMenu(&menu,key);
-            if (state == -1) {
-                break;
-            }
-            if (state == 0) {
-                snake.snake.isActive = true;
-            } else {
-                snake.snake.isActive = false;
-                snake.gameSize = menu.gameSize;
-                snake.gameType = menu.gameType;
-                snake.snake.isAlive = false;
-            }
-            alive  = snake.snake.isAlive;
-            active = snake.snake.isActive;
-        }
-        memset(buffer, 0, BUFFER_SIZE);
-        GiveServerString(&snake, buffer);
-        send(client_fd, buffer, (int)strlen(buffer), 0);
 
-        memset(buffer, 0, BUFFER_SIZE);
-        bytes_read = recv(client_fd, buffer, BUFFER_SIZE - 1, 0);
-        if (bytes_read < 0) {
-            printf("Server sa odpojil\n");
-            break;
-        }
-        ReadString(buffer, &snake);
+    thread_args_t thread_args;
+    pthread_mutex_t mutex;
+    pthread_cond_t sendData;
+    pthread_mutex_init(&mutex, NULL);
+    pthread_cond_init(&sendData,NULL);
+    thread_args.client_fd = client_fd;
+    thread_args.snake = &snake;
+    thread_args.menu = &menu;
+    thread_args.mutex = &mutex;
+    thread_args.sendData = &sendData;
+    thread_args.canUpdate = true;
+    thread_args.isRunning = 1;
+    pthread_t input_thread, draw_thread;
+    pthread_create(&input_thread, NULL, InputThread, &thread_args);
+    pthread_create(&draw_thread, NULL, DrawThread, &thread_args);
 
-        if (active) {
-            if (!alive) {
-                DrawSnakeMap(&snake);
-                DrawSnakeOnMap(&snake);
-            }
-            Draw(&snake);
-            DrawApple(&snake);
-        }
-        active = snake.snake.isActive;
-        alive  = snake.snake.isAlive;
-        usleep(100*1000);
-    }
+    pthread_join(input_thread, NULL);
+    pthread_join(draw_thread, NULL);
+
+    pthread_mutex_destroy(&mutex);
+    pthread_cond_destroy(&sendData);
     close(client_fd);
     ResetTextEffect();
     SetCursorVisibility(true);
@@ -122,4 +88,91 @@ int main() {
     WSACleanup();
 #endif
     return 0;
+}
+
+void * InputThread(void *arg) {
+    thread_args_t * data = arg;
+    char buffer[BUFFER_SIZE] = {0};
+    while (1) {
+        pthread_mutex_lock(data->mutex);
+        while (data->canUpdate == false) {
+            pthread_cond_wait(data->sendData, data->mutex);
+        }
+        if (kbhit()) {
+            char key = (char)getch();
+            if (key == 'w' && data->snake->snake.direction.y != 1) {
+                SetPositionXY(&data->snake->snake.direction,0,-1);
+            }
+            if (key == 's' && data->snake->snake.direction.y != -1) {
+                SetPositionXY(&data->snake->snake.direction,0,+1);
+            }
+            if (key == 'a' && data->snake->snake.direction.x != 1) {
+                SetPositionXY(&data->snake->snake.direction,-1,0);
+            }
+            if (key == 'd' && data->snake->snake.direction.x != -1) {
+                SetPositionXY(&data->snake->snake.direction,+1,0);
+            }
+            int state = UpdateMenu(data->menu,key);
+            if (state == -1) {
+                data->isRunning = -1;
+                break;
+            }
+            if (state == 0) {
+                data->snake->snake.isActive = true;
+            } else {
+                data->snake->snake.isActive = false;
+                data->snake->gameSize = data->menu->gameSize;
+                data->snake->gameType = data->menu->gameType;
+                data->snake->snake.isAlive = false;
+            }
+        }
+        data->canUpdate = false;
+        pthread_mutex_unlock(data->mutex);
+        memset(buffer, 0, BUFFER_SIZE);
+        GiveServerString(data->snake, buffer);
+        send(data->client_fd, buffer, (int)strlen(buffer), 0);
+        if (data->isRunning < 0) {
+            break;
+        }
+    }
+    return NULL;
+}
+
+void * DrawThread(void *arg) {
+    thread_args_t * data = arg;
+    char buffer[BUFFER_SIZE] = {0};
+    while (1) {
+        bool alive = data->snake->snake.isAlive;
+        bool active = data->snake->snake.isActive;
+        memset(buffer, 0, BUFFER_SIZE);
+        int bytes_read = recv(data->client_fd, buffer, BUFFER_SIZE - 1, 0);
+        if (bytes_read < 0) {
+            printf("Server sa odpojil\n");
+            pthread_mutex_lock(data->mutex);
+            data->isRunning = -1;
+            pthread_mutex_unlock(data->mutex);
+            break;
+        }
+        pthread_mutex_lock(data->mutex);
+        ReadString(buffer, data->snake);
+        pthread_mutex_unlock(data->mutex);
+
+        if (active) {
+            if (!alive) {
+                DrawSnakeMap(data->snake);
+                DrawSnakeOnMap(data->snake);
+            }
+            Draw(data->snake);
+            DrawApple(data->snake);
+        }
+        pthread_mutex_lock(data->mutex);
+        data->canUpdate = true;
+        pthread_cond_signal(data->sendData);
+        pthread_mutex_unlock(data->mutex);
+        usleep(100*1000);
+        if (data->isRunning < 0) {
+            break;
+        }
+    }
+    return NULL;
 }
