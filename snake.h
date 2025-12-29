@@ -35,8 +35,6 @@ typedef struct Snake {
     position_t headPos;
     position_t direction;
     position_t tailHelp;
-    int bodyColor;
-    int headColor;
     int size;
     unsigned int time;
     int playerNumber;
@@ -49,6 +47,7 @@ typedef struct ClientSnake {
     position_t apple;
     game_size_t gameSize;
     game_type_t gameType;
+    int timeout;
 }client_snake_t;
 
 typedef struct SnakeMap {
@@ -82,6 +81,8 @@ void ToString(client_snake_t const* snake_map, char * data);
 int ReadString(char const* data, client_snake_t * snake);
 void GiveServerString(client_snake_t const* snake_map, char * data);
 int ServerReadString(char const* data, client_snake_t * snake);
+int GetSnakeHeadColor(int playerNumber);
+int GetSnakeBodyColor(int playerNumber);
 
 
 

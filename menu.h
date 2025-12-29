@@ -10,7 +10,7 @@
 #define BUTTON_HEIGHT 3
 #define BUTTON_COLOR 17
 #define ACTIVE_BUTTON 21
-#define BUTTON_COUNT 3
+#define BUTTON_COUNT 4
 
 
 typedef struct Button {
@@ -22,6 +22,7 @@ typedef struct Menu {
     int menuType;
     game_size_t gameSize;
     game_type_t gameType;
+    int time;
 } menu_t;
 
 void DrawMenu();

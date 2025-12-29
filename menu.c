@@ -1,6 +1,7 @@
 #include "menu.h"
 
 #include <string.h>
+#include <unistd.h>
 
 void DrawGameSetting(menu_t * menu, char key);
 
@@ -58,6 +59,15 @@ void DrawBorder() {
 void DrawMenu() {
     DrawBorder();
     DrawControls();
+}
+
+void ResetButtons(menu_t * menu) {
+    ResetTextEffect();
+    DrawRectFull((CONSOLE_WIDTH-BUTTON_WIDTH)/2,(CONSOLE_HEIGHT/2)-2*BUTTON_HEIGHT-2,BUTTON_WIDTH, BUTTON_HEIGHT*5);
+    menu->buttons[0].isActive =true;
+    menu->buttons[1].isActive = false;
+    menu->buttons[2].isActive = false;
+    menu->buttons[3].isActive = false;
 }
 
 void DrawMainMenu(menu_t* menu,char key) {
@@ -119,7 +129,6 @@ void DrawGameSetting(menu_t * menu, char key) {
         }
     }
 
-
     if (key == '\r' || key == 'e') {
         if (menu->buttons[0].isActive) {
             menu->gameSize = (menu->gameSize+1)%3;
@@ -128,19 +137,18 @@ void DrawGameSetting(menu_t * menu, char key) {
             menu->gameType = (menu->gameType+1)%2;
         }
         if (menu->buttons[2].isActive) {
+            menu->time = (menu->time +30)%150;
+        }
+        if (menu->buttons[3].isActive) {
             ResetTextEffect();
-            DrawRectFull((CONSOLE_WIDTH-BUTTON_WIDTH)/2,(CONSOLE_HEIGHT/2)-BUTTON_HEIGHT-1,BUTTON_WIDTH, 11);
+            ResetButtons(menu);
             menu->menuType = 0;
             return;
         }
     }
     if (key == 27 ||key == 'q') {
         menu->menuType = 1;
-        ResetTextEffect();
-        DrawRectFull((CONSOLE_WIDTH-BUTTON_WIDTH)/2,(CONSOLE_HEIGHT/2)-BUTTON_HEIGHT-1,BUTTON_WIDTH, 11);
-        menu->buttons[0].isActive =true;
-        menu->buttons[1].isActive = false;
-        menu->buttons[2].isActive = false;
+        ResetButtons(menu);
         DrawMainMenu(menu,' ');
         return;
     }
@@ -165,17 +173,65 @@ void DrawGameSetting(menu_t * menu, char key) {
             game = "< Edge >";
             break;
     }
-    DrawButton((CONSOLE_WIDTH-BUTTON_WIDTH)/2,(CONSOLE_HEIGHT/2)-BUTTON_HEIGHT-1,menu->buttons[0].isActive,size);
-    DrawButton((CONSOLE_WIDTH-BUTTON_WIDTH)/2,(CONSOLE_HEIGHT/2),menu->buttons[1].isActive,game);
-    DrawButton((CONSOLE_WIDTH-BUTTON_WIDTH)/2,(CONSOLE_HEIGHT/2)+BUTTON_HEIGHT + 1,menu->buttons[2].isActive,"Continue");
+    char time[10];
+    if (menu->time == 0) {
+        strcpy(time,"< inf >");
+    } else {
+        sprintf(time,"< %d s >",menu->time);
+    }
+    DrawButton((CONSOLE_WIDTH-BUTTON_WIDTH)/2,(CONSOLE_HEIGHT/2)-2*BUTTON_HEIGHT-2,menu->buttons[0].isActive,size);
+    DrawButton((CONSOLE_WIDTH-BUTTON_WIDTH)/2,(CONSOLE_HEIGHT/2)-BUTTON_HEIGHT-1,menu->buttons[1].isActive,game);
+    DrawButton((CONSOLE_WIDTH-BUTTON_WIDTH)/2,(CONSOLE_HEIGHT/2),menu->buttons[2].isActive,time);
+    DrawButton((CONSOLE_WIDTH-BUTTON_WIDTH)/2,(CONSOLE_HEIGHT/2)+BUTTON_HEIGHT + 1,menu->buttons[3].isActive,"Continue");
+    MoveTo(5*2+1, 19);
+    Write(size);
+    MoveTo(5*2+1, 20);
+    Write(game);
+    MoveTo(5*2+1, 21);
+    Write(time);
+
+}
+
+void DrawPauseMenu(menu_t * menu, char key) {
+    if (key == 'w' || key == 's') {
+        if (menu->buttons[0].isActive) {
+            menu->buttons[0].isActive = false;
+            menu->buttons[1].isActive = true;
+        } else {
+            menu->buttons[0].isActive = true;
+            menu->buttons[1].isActive = false;
+        }
+    }
+    if (key == '\r' || key == 'e') {
+        if (menu->buttons[0].isActive) {
+            menu->menuType = 0;
+            ResetButtons(menu);
+            sleep(3);
+            return;
+        }
+        if (menu->buttons[1].isActive) {
+            menu->menuType = 2;
+            ResetButtons(menu);
+            DrawGameSetting(menu,' ');
+            return;
+        }
+    }
+    if (key == 27 || key == 'q') {
+        menu->menuType = 2;
+        ResetButtons(menu);
+        DrawGameSetting(menu,' ');
+        return;
+    }
+    DrawButton((CONSOLE_WIDTH-BUTTON_WIDTH)/2,(CONSOLE_HEIGHT/2)-BUTTON_HEIGHT-1,menu->buttons[0].isActive,"Continue");
+    DrawButton((CONSOLE_WIDTH-BUTTON_WIDTH)/2,(CONSOLE_HEIGHT/2)+1,menu->buttons[1].isActive,"Leave");
 }
 
 int UpdateMenu(menu_t * menu,char key) {
     switch (menu->menuType) {
         case 0 :
             if (key == 'q' || key == 27) {
-                menu->menuType = 2;
-                DrawGameSetting(menu,' ');
+                menu->menuType = 4;
+                DrawPauseMenu(menu,' ');
             }
             break;
         case 1:
@@ -183,6 +239,9 @@ int UpdateMenu(menu_t * menu,char key) {
             break;
         case 2:
             DrawGameSetting(menu,key);
+            break;
+        case 4:
+            DrawPauseMenu(menu,key);
             break;
         default:
             return -1;
@@ -199,4 +258,5 @@ void CreateButtons(menu_t * menu) {
     menu->menuType = 1;
     menu->gameSize = BIG;
     menu->gameType = LOOP;
+    menu->time = 0;
 }
