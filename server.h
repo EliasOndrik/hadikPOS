@@ -15,5 +15,16 @@
 #include <sys/socket.h>
 #include <arpa/inet.h>
 #endif
-
+#include <pthread.h>
 #include "snake.h"
+
+typedef struct ThreadData {
+    int clientFd;
+    int clientCount;
+    snake_map_t* snakeMap;
+    pthread_mutex_t* mutex;
+    //pthread_cond_t* clientReceived;
+} thread_data_t;
+
+void* ClientReceive(void * arg);
+void* ClientUpdate(void* arg);

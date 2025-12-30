@@ -23,56 +23,56 @@ void DrawSnakeMap(client_snake_t *snake_map) {
     ResetTextEffect();
 }
 
-void PlaceSnakeOnMap(snake_map_t *snake_map) {
-    snake_map->clientSnake.snake.size = 3;
-    snake_map->clientSnake.snake.time = 0;
-    switch (snake_map->clientSnake.snake.playerNumber) {
+void PlaceSnakeOnMap(snake_map_t *snake_map, int playerIndex) {
+    snake_map->clientSnake[playerIndex].snake.size = 3;
+    snake_map->clientSnake[playerIndex].snake.time = 0;
+    switch (snake_map->clientSnake[playerIndex].snake.playerNumber) {
         case 1:
-            SetPositionXY(&snake_map->clientSnake.snake.headPos, 1,3);
-            SetPositionXY(&snake_map->clientSnake.snake.tailPos,1,1);
+            SetPositionXY(&snake_map->clientSnake[playerIndex].snake.headPos, 1,3);
+            SetPositionXY(&snake_map->clientSnake[playerIndex].snake.tailPos,1,1);
             for (int i = 1; i <4;i++) {
                 position_t relative;
-                RelativePosition(&relative, 1,i, &snake_map->clientSnake.gameSize);
+                RelativePosition(&relative, 1,i, &snake_map->clientSnake[playerIndex].gameSize);
                 snake_map->map[relative.x][relative.y] = 'V';
             }
-            SetPositionXY(&snake_map->clientSnake.snake.direction,0,1);
+            SetPositionXY(&snake_map->clientSnake[playerIndex].snake.direction,0,1);
             break;
         case 2:
-            SetPositionXY(&snake_map->clientSnake.snake.headPos, 3,GetSize(&snake_map->clientSnake.gameSize)-2);
-            SetPositionXY(&snake_map->clientSnake.snake.tailPos,1,GetSize(&snake_map->clientSnake.gameSize)-2);
+            SetPositionXY(&snake_map->clientSnake[playerIndex].snake.headPos, 3,GetSize(&snake_map->clientSnake[playerIndex].gameSize)-2);
+            SetPositionXY(&snake_map->clientSnake[playerIndex].snake.tailPos,1,GetSize(&snake_map->clientSnake[playerIndex].gameSize)-2);
             for (int i = 1; i <4;i++) {
                 position_t relative;
-                RelativePosition(&relative, i,(GetSize(&snake_map->clientSnake.gameSize))-2, &snake_map->clientSnake.gameSize);
+                RelativePosition(&relative, i,(GetSize(&snake_map->clientSnake[playerIndex].gameSize))-2, &snake_map->clientSnake[playerIndex].gameSize);
                 snake_map->map[relative.x][relative.y] = '>';
             }
-            SetPositionXY(&snake_map->clientSnake.snake.direction,1,0);
+            SetPositionXY(&snake_map->clientSnake[playerIndex].snake.direction,1,0);
             break;
         case 3:
-            SetPositionXY(&snake_map->clientSnake.snake.headPos, GetSize(&snake_map->clientSnake.gameSize)-4,1);
-            SetPositionXY(&snake_map->clientSnake.snake.tailPos,GetSize(&snake_map->clientSnake.gameSize)-2,1);
+            SetPositionXY(&snake_map->clientSnake[playerIndex].snake.headPos, GetSize(&snake_map->clientSnake[playerIndex].gameSize)-4,1);
+            SetPositionXY(&snake_map->clientSnake[playerIndex].snake.tailPos,GetSize(&snake_map->clientSnake[playerIndex].gameSize)-2,1);
             for (int i = 1; i <4;i++) {
                 position_t relative;
-                RelativePosition(&relative, (GetSize(&snake_map->clientSnake.gameSize)) -1 -i,1, &snake_map->clientSnake.gameSize);
+                RelativePosition(&relative, (GetSize(&snake_map->clientSnake[playerIndex].gameSize)) -1 -i,1, &snake_map->clientSnake[playerIndex].gameSize);
                 snake_map->map[relative.x][relative.y] = '<';
             }
-            SetPositionXY(&snake_map->clientSnake.snake.direction,-1,0);
+            SetPositionXY(&snake_map->clientSnake[playerIndex].snake.direction,-1,0);
             break;
         case 4:
-            SetPositionXY(&snake_map->clientSnake.snake.headPos, GetSize(&snake_map->clientSnake.gameSize)-2,GetSize(&snake_map->clientSnake.gameSize)-4);
-            SetPositionXY(&snake_map->clientSnake.snake.tailPos,GetSize(&snake_map->clientSnake.gameSize)-2,GetSize(&snake_map->clientSnake.gameSize)-2);
+            SetPositionXY(&snake_map->clientSnake[playerIndex].snake.headPos, GetSize(&snake_map->clientSnake[playerIndex].gameSize)-2,GetSize(&snake_map->clientSnake[playerIndex].gameSize)-4);
+            SetPositionXY(&snake_map->clientSnake[playerIndex].snake.tailPos,GetSize(&snake_map->clientSnake[playerIndex].gameSize)-2,GetSize(&snake_map->clientSnake[playerIndex].gameSize)-2);
             for (int i = 1; i <4;i++) {
                 position_t relative;
-                RelativePosition(&relative, (GetSize(&snake_map->clientSnake.gameSize))-2,(GetSize(&snake_map->clientSnake.gameSize))-1-i, &snake_map->clientSnake.gameSize);
+                RelativePosition(&relative, (GetSize(&snake_map->clientSnake[playerIndex].gameSize))-2,(GetSize(&snake_map->clientSnake[playerIndex].gameSize))-1-i, &snake_map->clientSnake[playerIndex].gameSize);
                 snake_map->map[relative.x][relative.y] = 'A';
             }
-            SetPositionXY(&snake_map->clientSnake.snake.direction,0,-1);
+            SetPositionXY(&snake_map->clientSnake[playerIndex].snake.direction,0,-1);
             break;
         default: ;
     }
-    snake_map->clientSnake.snake.isAlive = true;
-    snake_map->clientSnake.snake.isActive = true;
+    snake_map->clientSnake[playerIndex].snake.isAlive = true;
+    snake_map->clientSnake[playerIndex].snake.isActive = true;
     ResetTextEffect();
-    UpdateApple(snake_map);
+    UpdateApple(snake_map, playerIndex);
 
 }
 
@@ -111,23 +111,28 @@ void DrawSnakeOnMap(client_snake_t *snake_map) {
     }
 }
 
-void Update(snake_map_t *snake_map) {
-    if (snake_map->clientSnake.snake.isActive) {
+void Update(snake_map_t *snake_map, int playerIndex) {
+    if (snake_map->clientSnake[playerIndex].snake.isActive) {
         position_t relative;
         position_t newPosition;
-        SetPositionXY(&newPosition,snake_map->clientSnake.snake.headPos.x + snake_map->clientSnake.snake.direction.x,snake_map->clientSnake.snake.headPos.y + snake_map->clientSnake.snake.direction.y);
+        SetPositionXY(&newPosition,snake_map->clientSnake[playerIndex].snake.headPos.x + snake_map->clientSnake[playerIndex].snake.direction.x,snake_map->clientSnake[playerIndex].snake.headPos.y + snake_map->clientSnake[playerIndex].snake.direction.y);
         position_t currentPosition;
-        SetPositionTo(&currentPosition, &snake_map->clientSnake.snake.headPos);
-        RelativePosition(&relative, currentPosition.x, currentPosition.y, &snake_map->clientSnake.gameSize);
-        snake_map->map[relative.x][relative.y] = DirToChar(&snake_map->clientSnake.snake.direction);
-
-        if (PositionEquals(&newPosition, &snake_map->clientSnake.apple)) {
-            snake_map->clientSnake.snake.size++;
-            UpdateApple(snake_map);
-        } else {
-            SetPositionTo(&currentPosition, &snake_map->clientSnake.snake.tailPos);
-            SetPositionTo(&snake_map->clientSnake.snake.tailHelp, &currentPosition);
-            RelativePosition(&relative, currentPosition.x,currentPosition.y, &snake_map->clientSnake.gameSize);
+        SetPositionTo(&currentPosition, &snake_map->clientSnake[playerIndex].snake.headPos);
+        RelativePosition(&relative, currentPosition.x, currentPosition.y, &snake_map->clientSnake[playerIndex].gameSize);
+        snake_map->map[relative.x][relative.y] = DirToChar(&snake_map->clientSnake[playerIndex].snake.direction);
+        bool ateApple = false;
+        for (int i = 0; i < MAX_PLAYERS; i++) {
+            if (PositionEquals(&newPosition, &snake_map->clientSnake[i].apple) && snake_map->clientSnake[i].snake.isActive) {
+                snake_map->clientSnake[playerIndex].snake.size++;
+                UpdateApple(snake_map, i);
+                ateApple = true;
+                break;
+            }
+        }
+        if (!ateApple){
+            SetPositionTo(&currentPosition, &snake_map->clientSnake[playerIndex].snake.tailPos);
+            SetPositionTo(&snake_map->clientSnake[playerIndex].snake.tailHelp, &currentPosition);
+            RelativePosition(&relative, currentPosition.x,currentPosition.y, &snake_map->clientSnake[playerIndex].gameSize);
             char ch = snake_map->map[relative.x][relative.y];
             switch (ch) {
                 case '>' :
@@ -147,38 +152,38 @@ void Update(snake_map_t *snake_map) {
 
             }
             snake_map->map[relative.x][relative.y] = ' ';
-            if (snake_map->clientSnake.gameType == LOOP) {
-                LoopPosition(&currentPosition,&snake_map->clientSnake.gameSize);
+            if (snake_map->clientSnake[playerIndex].gameType == LOOP) {
+                LoopPosition(&currentPosition,&snake_map->clientSnake[playerIndex].gameSize);
             }
-            SetPositionTo(&snake_map->clientSnake.snake.tailPos,&currentPosition);
+            SetPositionTo(&snake_map->clientSnake[playerIndex].snake.tailPos,&currentPosition);
         }
 
-        switch (snake_map->clientSnake.gameType) {
+        switch (snake_map->clientSnake[playerIndex].gameType) {
             case LOOP :
-                LoopPosition(&newPosition,&snake_map->clientSnake.gameSize);
+                LoopPosition(&newPosition,&snake_map->clientSnake[playerIndex].gameSize);
                 break ;
             case EDGE :
-                if ((newPosition.x < 0 || newPosition.x >= GetSize(&snake_map->clientSnake.gameSize) || newPosition.y <0 || newPosition.y >= GetSize(&snake_map->clientSnake.gameSize))) {
-                    snake_map->clientSnake.snake.isAlive = false;
+                if ((newPosition.x < 0 || newPosition.x >= GetSize(&snake_map->clientSnake[playerIndex].gameSize) || newPosition.y <0 || newPosition.y >= GetSize(&snake_map->clientSnake[playerIndex].gameSize))) {
+                    snake_map->clientSnake[playerIndex].snake.isAlive = false;
                     return;
                 }
                 break ;
             default:
                 break;
         }
-        if (snake_map->clientSnake.timeout != 0 && (snake_map->clientSnake.timeout <= snake_map->clientSnake.snake.time/10)) {
-            snake_map->clientSnake.snake.isAlive = false;
+        if (snake_map->clientSnake[playerIndex].timeout != 0 && (snake_map->clientSnake[playerIndex].timeout <= snake_map->clientSnake[playerIndex].snake.time/10)) {
+            snake_map->clientSnake[playerIndex].snake.isAlive = false;
             return;
         }
-        RelativePosition(&relative, newPosition.x,newPosition.y, &snake_map->clientSnake.gameSize);
+        RelativePosition(&relative, newPosition.x,newPosition.y, &snake_map->clientSnake[playerIndex].gameSize);
         if (!(snake_map->map[relative.x][relative.y] == ' ' || snake_map->map[relative.x][relative.y] == 'a')) {
-            snake_map->clientSnake.snake.isAlive = false;
+            snake_map->clientSnake[playerIndex].snake.isAlive = false;
             return;
         }
-        SetPositionTo(&snake_map->clientSnake.snake.headPos, &newPosition);
+        SetPositionTo(&snake_map->clientSnake[playerIndex].snake.headPos, &newPosition);
 
-        snake_map->map[relative.x][relative.y] = DirToChar(&snake_map->clientSnake.snake.direction);
-        snake_map->clientSnake.snake.time++;
+        snake_map->map[relative.x][relative.y] = DirToChar(&snake_map->clientSnake[playerIndex].snake.direction);
+        snake_map->clientSnake[playerIndex].snake.time++;
 
     }
 }
@@ -208,13 +213,13 @@ void Draw(client_snake_t *snake_map) {
     }
 }
 
-void UpdateApple(snake_map_t *snake_map) {
+void UpdateApple(snake_map_t *snake_map, int playerIndex) {
     position_t relative;
-    SetPositionXY(&snake_map->clientSnake.apple,rand()%GetSize(&snake_map->clientSnake.gameSize), rand()%GetSize(&snake_map->clientSnake.gameSize));
-    RelativePosition(&relative,snake_map->clientSnake.apple.x,snake_map->clientSnake.apple.y, &snake_map->clientSnake.gameSize);
+    SetPositionXY(&snake_map->clientSnake[playerIndex].apple,rand()%GetSize(&snake_map->clientSnake[playerIndex].gameSize), rand()%GetSize(&snake_map->clientSnake[playerIndex].gameSize));
+    RelativePosition(&relative,snake_map->clientSnake[playerIndex].apple.x,snake_map->clientSnake[playerIndex].apple.y, &snake_map->clientSnake[playerIndex].gameSize);
     while (snake_map->map[relative.x][relative.y] != ' ') {
-        SetPositionXY(&snake_map->clientSnake.apple,rand()%GetSize(&snake_map->clientSnake.gameSize), rand()%GetSize(&snake_map->clientSnake.gameSize));
-        RelativePosition(&relative,snake_map->clientSnake.apple.x,snake_map->clientSnake.apple.y, &snake_map->clientSnake.gameSize);
+        SetPositionXY(&snake_map->clientSnake[playerIndex].apple,rand()%GetSize(&snake_map->clientSnake[playerIndex].gameSize), rand()%GetSize(&snake_map->clientSnake[playerIndex].gameSize));
+        RelativePosition(&relative,snake_map->clientSnake[playerIndex].apple.x,snake_map->clientSnake[playerIndex].apple.y, &snake_map->clientSnake[playerIndex].gameSize);
     }
     snake_map->map[relative.x][relative.y] = 'a';
 }
@@ -352,18 +357,18 @@ void DrawSnakeStats(snake_t *snake) {
     printf("Time: %d    ", snake->time/10);
 }
 
-void ToString(client_snake_t const *snake_map, char * data) {
-    int alive  = snake_map->snake.isAlive;
-    int active = snake_map->snake.isActive;
+void ToString(client_snake_t const *snakeMap, char * data) {
+    int alive  = snakeMap->snake.isAlive;
+    int active = snakeMap->snake.isActive;
     sprintf(data,"%d;%d;%d;%d;%d;%d;%d;%d;%d;%d;%d;%d;%d;%d;%d;%d;%d;",
-        snake_map->gameSize,snake_map->timeout,
-        snake_map->snake.playerNumber,
-        snake_map->snake.headPos.x, snake_map->snake.headPos.y,
-        snake_map->snake.direction.x, snake_map->snake.direction.y,
-        snake_map->snake.tailPos.x, snake_map->snake.tailPos.y,
-        snake_map->snake.tailHelp.x, snake_map->snake.tailHelp.y,
-        snake_map->snake.size, snake_map->snake.time,
-        snake_map->apple.x, snake_map->apple.y,
+        snakeMap->gameSize,snakeMap->timeout,
+        snakeMap->snake.playerNumber,
+        snakeMap->snake.headPos.x, snakeMap->snake.headPos.y,
+        snakeMap->snake.direction.x, snakeMap->snake.direction.y,
+        snakeMap->snake.tailPos.x, snakeMap->snake.tailPos.y,
+        snakeMap->snake.tailHelp.x, snakeMap->snake.tailHelp.y,
+        snakeMap->snake.size, snakeMap->snake.time,
+        snakeMap->apple.x, snakeMap->apple.y,
         alive,active);
 }
 
@@ -384,24 +389,26 @@ int ReadString(char const *data, client_snake_t * snake) {
     return success;
 }
 
-void GiveServerString(client_snake_t const *snake_map, char *data) {
-    int alive  = snake_map->snake.isAlive;
-    int active = snake_map->snake.isActive;
-    sprintf(data,"%d;%d;%d;%d;%d;%d;%d;",
-        snake_map->gameSize,snake_map->gameType,
-        snake_map->snake.playerNumber,
-        snake_map->snake.direction.x, snake_map->snake.direction.y,
+void GiveServerString(client_snake_t const *snakeMap, char *data) {
+    int alive  = snakeMap->snake.isAlive;
+    int active = snakeMap->snake.isActive;
+    sprintf(data,"%d;%d;%d;%d;%d;%d;%d;%d;",
+        snakeMap->gameSize,snakeMap->gameType,
+        snakeMap->timeout,
+        snakeMap->snake.playerNumber,
+        snakeMap->snake.direction.x, snakeMap->snake.direction.y,
         alive, active
         );
 }
 
 int ServerReadString(char const *data, client_snake_t *snake) {
     int alive, active;
-    bool success = sscanf(data,"%d;%d;%d;%d;%d;%d;%d;",
+    bool success = sscanf(data,"%d;%d;%d;%d;%d;%d;%d;%d;",
         &snake->gameSize,&snake->gameType,
+        &snake->timeout,
         &snake->snake.playerNumber,
         &snake->snake.direction.x, &snake->snake.direction.y,
-        &alive, &active) == 7;
+        &alive, &active) == 8;
     snake->snake.isAlive = alive == 1;
     snake->snake.isActive = active == 1;
     return success;

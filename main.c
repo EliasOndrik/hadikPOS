@@ -16,12 +16,12 @@ int main(void) {
     menu_t menu;
     CreateButtons(&menu);
     SetSnakeMap(&snake_map);
-    DrawSnakeMap(&snake_map.clientSnake);
-    snake_map.clientSnake.snake.playerNumber = 1;
-    PlaceSnakeOnMap(&snake_map);
-    DrawSnakeOnMap(&snake_map.clientSnake);
+    DrawSnakeMap(&snake_map.clientSnake[0]);
+    snake_map.clientSnake[0].snake.playerNumber = 1;
+    PlaceSnakeOnMap(&snake_map, 0);
+    DrawSnakeOnMap(&snake_map.clientSnake[0]);
     UpdateMenu(&menu,' ');
-    snake_map.clientSnake.snake.isActive = false;
+    snake_map.clientSnake[0].snake.isActive = false;
 
     while (1) {
         if (kbhit()) {
@@ -32,39 +32,39 @@ int main(void) {
                 break;
             }
             if (state == 0) {
-                if (key == 'w' && snake_map.clientSnake.snake.direction.y != 1) {
-                    SetPositionXY(&snake_map.clientSnake.snake.direction,0,-1);
+                if (key == 'w' && snake_map.clientSnake[0].snake.direction.y != 1) {
+                    SetPositionXY(&snake_map.clientSnake[0].snake.direction,0,-1);
                 }
-                if (key == 's' && snake_map.clientSnake.snake.direction.y != -1) {
-                    SetPositionXY(&snake_map.clientSnake.snake.direction,0,+1);
+                if (key == 's' && snake_map.clientSnake[0].snake.direction.y != -1) {
+                    SetPositionXY(&snake_map.clientSnake[0].snake.direction,0,+1);
                 }
-                if (key == 'a' && snake_map.clientSnake.snake.direction.x != 1) {
-                    SetPositionXY(&snake_map.clientSnake.snake.direction,-1,0);
+                if (key == 'a' && snake_map.clientSnake[0].snake.direction.x != 1) {
+                    SetPositionXY(&snake_map.clientSnake[0].snake.direction,-1,0);
                 }
-                if (key == 'd' && snake_map.clientSnake.snake.direction.x != -1) {
-                    SetPositionXY(&snake_map.clientSnake.snake.direction,+1,0);
+                if (key == 'd' && snake_map.clientSnake[0].snake.direction.x != -1) {
+                    SetPositionXY(&snake_map.clientSnake[0].snake.direction,+1,0);
                 }
-                snake_map.clientSnake.snake.isActive = true;
+                snake_map.clientSnake[0].snake.isActive = true;
             } else if (state == 4) {
-                snake_map.clientSnake.snake.isActive = false;
+                snake_map.clientSnake[0].snake.isActive = false;
             } else {
-                snake_map.clientSnake.snake.isActive = false;
-                snake_map.clientSnake.gameSize = menu.gameSize;
-                snake_map.clientSnake.gameType = menu.gameType;
-                snake_map.clientSnake.timeout = menu.time;
-                snake_map.clientSnake.snake.isAlive = false;
+                snake_map.clientSnake[0].snake.isActive = false;
+                snake_map.clientSnake[0].snake.isAlive = false;
+                snake_map.clientSnake[0].gameSize = menu.gameSize;
+                snake_map.clientSnake[0].gameType = menu.gameType;
+                snake_map.clientSnake[0].timeout = menu.time;
             }
         }
-        if (snake_map.clientSnake.snake.isActive) {
-            if (!snake_map.clientSnake.snake.isAlive) {
+        if (snake_map.clientSnake[0].snake.isActive) {
+            if (!snake_map.clientSnake[0].snake.isAlive) {
                 SetSnakeMap(&snake_map);
-                DrawSnakeMap(&snake_map.clientSnake);
-                PlaceSnakeOnMap(&snake_map);
-                DrawSnakeOnMap(&snake_map.clientSnake);
+                DrawSnakeMap(&snake_map.clientSnake[0]);
+                PlaceSnakeOnMap(&snake_map, 0);
+                DrawSnakeOnMap(&snake_map.clientSnake[0]);
             }
-            Update(&snake_map);
-            Draw(&snake_map.clientSnake);
-            DrawApple(&snake_map.clientSnake);
+            Update(&snake_map,0);
+            Draw(&snake_map.clientSnake[0]);
+            DrawApple(&snake_map.clientSnake[0]);
         }
 
         usleep(100*1000);

@@ -23,6 +23,7 @@ typedef struct Menu {
     game_size_t gameSize;
     game_type_t gameType;
     int time;
+    int playerCount;
 } menu_t;
 
 void DrawMenu();
