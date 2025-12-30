@@ -12,6 +12,7 @@
 #define MAX_HEIGHT 28
 #define X_OFFSET ((CONSOLE_WIDTH-MAX_WIDTH)/2)
 #define Y_OFFSET ((CONSOLE_HEIGHT-MAX_HEIGHT)/2)
+#define MAX_PLAYERS 4
 
 
 typedef enum GameSize {
@@ -52,16 +53,16 @@ typedef struct ClientSnake {
 
 typedef struct SnakeMap {
     char map[MAX_WIDTH][MAX_HEIGHT];
-    client_snake_t clientSnake;
+    client_snake_t clientSnake[MAX_PLAYERS];
 } snake_map_t;
 
 void SetSnakeMap(snake_map_t* snake_map);
 void DrawSnakeMap(client_snake_t* snake_map);
-void PlaceSnakeOnMap(snake_map_t* snake_map);
+void PlaceSnakeOnMap(snake_map_t* snake_map, int playerIndex);
 void DrawSnakeOnMap(client_snake_t* snake_map);
-void Update(snake_map_t* snake_map);
+void Update(snake_map_t* snake_map, int playerIndex);
 void Draw(client_snake_t* snake_map);
-void UpdateApple(snake_map_t *snake_map);
+void UpdateApple(snake_map_t *snake_map, int playerIndex);
 void DrawApple(client_snake_t *snake_map);
 void SetPositionTo(position_t *position, position_t const *newPosition);
 void SetPositionXY(position_t* position, int x, int y);
@@ -77,9 +78,9 @@ int RelativeOffsetX(game_size_t const * gameSize);
 int RelativeOffsetY(game_size_t const * gameSize);
 void RelativePosition(position_t *position, int x, int y,game_size_t const * gameSize);
 void DrawSnakeStats(snake_t * snake);
-void ToString(client_snake_t const* snake_map, char * data);
+void ToString(client_snake_t const* snakeMap, char * data);
 int ReadString(char const* data, client_snake_t * snake);
-void GiveServerString(client_snake_t const* snake_map, char * data);
+void GiveServerString(client_snake_t const* snakeMap, char * data);
 int ServerReadString(char const* data, client_snake_t * snake);
 int GetSnakeHeadColor(int playerNumber);
 int GetSnakeBodyColor(int playerNumber);
