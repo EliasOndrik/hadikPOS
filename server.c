@@ -3,7 +3,11 @@
 #define PORT 14589
 #define BUFFER_SIZE 1024
 
-int main() {
+int main(int argc, char * argv[]) {
+    int offset = 0;
+    if (argc > 1) {
+        offset = atoi(argv[1]);
+    }
 #ifdef _WIN32
     struct WSAData wsaData;
     WSAStartup(MAKEWORD(2,2), &wsaData);
@@ -26,7 +30,7 @@ int main() {
     memset(&server_address, 0, sizeof(server_address));
     server_address.sin_family = AF_INET;
     server_address.sin_addr.s_addr = INADDR_ANY;
-    server_address.sin_port = htons(PORT);
+    server_address.sin_port = htons(PORT + offset);
 
     if (bind(server_fd, (struct sockaddr *)&server_address, sizeof(server_address)) < 0) {
         perror("Bind zlyha");
@@ -36,7 +40,7 @@ int main() {
 #endif
         return -2;
     }
-    printf("Socket naviazany na port: %d\n", PORT);
+    printf("Socket naviazany na port: %d\n", PORT + offset);
     if (listen(server_fd, 4) < 0) {
         perror("Listen zlyhal");
         close(server_fd);
@@ -75,8 +79,8 @@ int main() {
     threadData.snakeMap = &snakeMap;
     threadData.clientCount = 1;
     threadData.mutex = &mutex;
+    printf("Vytvaram thread\n");
     pthread_create(&thread, NULL, ClientUpdate, &threadData);
-
     pthread_join(thread, NULL);
     pthread_mutex_destroy(&mutex);
     close(client_fd);
@@ -108,6 +112,7 @@ void * ClientUpdate(void *arg) {
             break;
         }
         ServerReadString(buffer, &data->snakeMap->clientSnake[0]);
+
         if (data->snakeMap->clientSnake[0].snake.isActive) {
             if (!data->snakeMap->clientSnake[0].snake.isAlive) {
                 SetSnakeMap(data->snakeMap);

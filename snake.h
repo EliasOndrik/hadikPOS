@@ -54,6 +54,7 @@ typedef struct ClientSnake {
 typedef struct SnakeMap {
     char map[MAX_WIDTH][MAX_HEIGHT];
     client_snake_t clientSnake[MAX_PLAYERS];
+    int maxPlayerCount;
 } snake_map_t;
 
 void SetSnakeMap(snake_map_t* snake_map);

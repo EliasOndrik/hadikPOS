@@ -18,7 +18,8 @@
 #include "menu.h"
 
 typedef struct ThreadArgs {
-    int client_fd;
+    int clientFd;
+    struct sockaddr_in* serverAddr;
     client_snake_t* snake;
     menu_t* menu;
     pthread_mutex_t* mutex;

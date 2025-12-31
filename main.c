@@ -47,12 +47,16 @@ int main(void) {
                 snake_map.clientSnake[0].snake.isActive = true;
             } else if (state == 4) {
                 snake_map.clientSnake[0].snake.isActive = false;
+            } else if (state == 7 || state == 6 || state == 3) {
+                UpdateMenu(&menu,' ');
+                snake_map.clientSnake[0].snake.isActive = true;
             } else {
                 snake_map.clientSnake[0].snake.isActive = false;
                 snake_map.clientSnake[0].snake.isAlive = false;
                 snake_map.clientSnake[0].gameSize = menu.gameSize;
                 snake_map.clientSnake[0].gameType = menu.gameType;
                 snake_map.clientSnake[0].timeout = menu.time;
+                snake_map.maxPlayerCount = menu.playerCount;
             }
         }
         if (snake_map.clientSnake[0].snake.isActive) {
