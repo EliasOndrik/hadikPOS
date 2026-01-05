@@ -7,17 +7,17 @@
 #define CONSOLE_WIDTH 60
 #define CONSOLE_HEIGHT 30
 
-void MoveTo(int x, int y);
-void DrawRect(int x, int y, int width, int height);
-void DrawRectFull(int x, int y, int width, int height);
-void DrawDot(int x, int y);
-void TextColor(int color);
-void SetBackgroundColor(int color);
-void WriteLine(char* text);
-void Write(char* text);
-void SetBold(bool bold);
-void SetBlinking(bool blinking);
-void SetCursorVisibility(bool visible);
-void ResetTextEffect();
-void ClearScreen();
+void move_to(int x, int y);
+void draw_rect(int x, int y, int width, int height);
+void draw_rect_full(int x, int y, int width, int height);
+void draw_dot(int x, int y);
+void text_color(int color);
+void set_background_color(int color);
+void write_line(char* text);
+void print_text(char* text);
+void set_bold(bool bold);
+void set_blinking(bool blinking);
+void set_cursor_visibility(bool visible);
+void reset_text_effect();
+void clear_screen();
 

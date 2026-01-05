@@ -1,35 +1,35 @@
 #include "console.h"
 
-void MoveTo(int x, int y) {
+void move_to(int x, int y) {
     printf("\x1B[%d;%dH",y,x);
     //fputs("\x1B[10;10H", stdout);
 }
 
-void DrawRect(int x, int y, int width, int height) {
+void draw_rect(int x, int y, int width, int height) {
     for (int i = x; i < x + width; i++) {
         for (int j = y; j < y + height; j++) {
             if (i >x && i < x + width -1 && j > y && j < y+height-1) {
                 continue;
             }
-            DrawDot(i,j);
+            draw_dot(i,j);
         }
     }
 }
 
-void DrawRectFull(int x, int y, int width, int height) {
+void draw_rect_full(int x, int y, int width, int height) {
     for (int i = x; i < x + width; i++) {
         for (int j = y; j < y + height; j++) {
-            DrawDot(i,j);
+            draw_dot(i,j);
         }
     }
 }
 
-void DrawDot(int x, int y) {
-    MoveTo(x*2 + 1,y + 1);
-    Write("  ");
+void draw_dot(int x, int y) {
+    move_to(x*2 + 1,y + 1);
+    print_text("  ");
 }
 
-void TextColor(int color) {
+void text_color(int color) {
     if (color < 0) {
         color *= -1;
     }
@@ -37,7 +37,7 @@ void TextColor(int color) {
     printf("\x1B[38;5;%dm", color);
 }
 
-void SetBackgroundColor(int color) {
+void set_background_color(int color) {
     if (color < 0) {
         color *= -1;
     }
@@ -45,15 +45,15 @@ void SetBackgroundColor(int color) {
     printf("\x1B[48;5;%dm", color);
 }
 
-void WriteLine(char *text) {
+void write_line(char *text) {
     printf("%s\n",text);
 }
 
-void Write(char *text) {
+void print_text(char *text) {
     printf("%s",text);
 }
 
-void SetBold(bool bold) {
+void set_bold(bool bold) {
     if (bold) {
         printf("\x1B[1m");
     } else {
@@ -61,7 +61,7 @@ void SetBold(bool bold) {
     }
 }
 
-void SetBlinking(bool blinking) {
+void set_blinking(bool blinking) {
     if (blinking) {
         printf("\x1B[5m");
     } else {
@@ -69,7 +69,7 @@ void SetBlinking(bool blinking) {
     }
 }
 
-void SetCursorVisibility(bool visible) {
+void set_cursor_visibility(bool visible) {
     if (visible) {
         printf("\x1B[?25h");
     } else {
@@ -77,12 +77,12 @@ void SetCursorVisibility(bool visible) {
     }
 }
 
-void ResetTextEffect() {
+void reset_text_effect() {
     printf("\x1B[0m");
 }
 
-void ClearScreen() {
-    MoveTo(0,0);
+void clear_screen() {
+    move_to(0,0);
     printf("\x1B[J");
 }
 

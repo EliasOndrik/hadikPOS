@@ -26,5 +26,5 @@ typedef struct ThreadData {
     //pthread_cond_t* clientReceived;
 } thread_data_t;
 
-void* ClientReceive(void * arg);
-void* ClientUpdate(void* arg);
+void* client_receive(void * arg);
+void* client_update(void* arg);

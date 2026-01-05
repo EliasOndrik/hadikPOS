@@ -13,8 +13,8 @@ int main(int argc, char * argv[]) {
     WSAStartup(MAKEWORD(2,2), &wsaData);
 #endif
     srand(time(NULL));
-    int server_fd = (int)socket(AF_INET, SOCK_STREAM, 0);
-    if (server_fd < 0) {
+    int serverFd = (int)socket(AF_INET, SOCK_STREAM, 0);
+    if (serverFd < 0) {
         perror("Chyba pri vytvarani socketu");
 #ifdef _WIN32
         WSACleanup();
@@ -24,26 +24,26 @@ int main(int argc, char * argv[]) {
     printf("Socket bol vytvoreny\n");
 
     int opt = 1;
-    setsockopt(server_fd, SOL_SOCKET, SO_REUSEADDR, (char *)&opt, sizeof(opt));
+    setsockopt(serverFd, SOL_SOCKET, SO_REUSEADDR, (char *)&opt, sizeof(opt));
 
-    struct sockaddr_in server_address;
-    memset(&server_address, 0, sizeof(server_address));
-    server_address.sin_family = AF_INET;
-    server_address.sin_addr.s_addr = INADDR_ANY;
-    server_address.sin_port = htons(PORT + offset);
+    struct sockaddr_in serverAddress;
+    memset(&serverAddress, 0, sizeof(serverAddress));
+    serverAddress.sin_family = AF_INET;
+    serverAddress.sin_addr.s_addr = INADDR_ANY;
+    serverAddress.sin_port = htons(PORT + offset);
 
-    if (bind(server_fd, (struct sockaddr *)&server_address, sizeof(server_address)) < 0) {
+    if (bind(serverFd, (struct sockaddr *)&serverAddress, sizeof(serverAddress)) < 0) {
         perror("Bind zlyha");
-        close(server_fd);
+        close(serverFd);
 #ifdef _WIN32
         WSACleanup();
 #endif
         return -2;
     }
     printf("Socket naviazany na port: %d\n", PORT + offset);
-    if (listen(server_fd, 4) < 0) {
+    if (listen(serverFd, 4) < 0) {
         perror("Listen zlyhal");
-        close(server_fd);
+        close(serverFd);
 #ifdef _WIN32
         WSACleanup();
 #endif
@@ -52,40 +52,40 @@ int main(int argc, char * argv[]) {
     printf("Server pocuva ...\n");
 
     snake_map_t snakeMap;
-    InitializeMap(&snakeMap);
-    SetSnakeMap(&snakeMap);
+    initialize_map(&snakeMap);
+    set_snake_map(&snakeMap);
 
-    int client_fd;
-    struct sockaddr_in client_address;
-    socklen_t client_len;
-    client_len = sizeof(client_address);
-    client_fd = (int)accept(server_fd, (struct sockaddr *)&client_address, &client_len);
-    if (client_fd < 0) {
+    int clientFd;
+    struct sockaddr_in clientAddress;
+    socklen_t clientLen;
+    clientLen = sizeof(clientAddress);
+    clientFd = (int)accept(serverFd, (struct sockaddr *)&clientAddress, &clientLen);
+    if (clientFd < 0) {
         perror("Accept zlyhal");
-        close(server_fd);
+        close(serverFd);
 #ifdef _WIN32
         WSACleanup();
 #endif
         return -4;
     }
-    printf("Klient pripojeny: %s:%d\n",inet_ntoa(client_address.sin_addr),ntohs(client_address.sin_port));
+    printf("Klient pripojeny: %s:%d\n",inet_ntoa(clientAddress.sin_addr),ntohs(clientAddress.sin_port));
 
-    PlaceSnakeOnMap(&snakeMap,0);
+    place_snake_on_map(&snakeMap,0);
 
     pthread_t thread;
     pthread_mutex_t mutex;
     pthread_mutex_init(&mutex, NULL);
     thread_data_t threadData;
-    threadData.clientFd = client_fd;
+    threadData.clientFd = clientFd;
     threadData.snakeMap = &snakeMap;
     threadData.clientCount = 1;
     threadData.mutex = &mutex;
     printf("Vytvaram thread\n");
-    pthread_create(&thread, NULL, ClientUpdate, &threadData);
+    pthread_create(&thread, NULL, client_update, &threadData);
     pthread_join(thread, NULL);
     pthread_mutex_destroy(&mutex);
-    close(client_fd);
-    close(server_fd);
+    close(clientFd);
+    close(serverFd);
     printf("Server je ukonceny\n");
 #ifdef _WIN32
     WSACleanup();
@@ -93,16 +93,16 @@ int main(int argc, char * argv[]) {
     return 0;
 }
 
-void * ClientReceive(void *arg) {
+void * client_receive(void *arg) {
 
     return NULL;
 }
 
-void * ClientUpdate(void *arg) {
+void * client_update(void *arg) {
     thread_data_t * data = arg;
     char buffer[BUFFER_SIZE] = {0};
     data->snakeMap->clientSnake[0].snake.playerNumber = 1;
-    ToString(&data->snakeMap->clientSnake[0],buffer);
+    to_string(&data->snakeMap->clientSnake[0],buffer);
     send(data->clientFd, buffer, (int)strlen(buffer), 0);
     while (1) {
         memset(buffer, 0, BUFFER_SIZE);
@@ -112,17 +112,17 @@ void * ClientUpdate(void *arg) {
             data->clientCount--;
             break;
         }
-        ServerReadString(buffer, &data->snakeMap->clientSnake[0]);
+        server_read_string(buffer, &data->snakeMap->clientSnake[0]);
 
         if (data->snakeMap->clientSnake[0].snake.isActive) {
             if (!data->snakeMap->clientSnake[0].snake.isAlive) {
-                SetSnakeMap(data->snakeMap);
-                PlaceSnakeOnMap(data->snakeMap,0);
+                set_snake_map(data->snakeMap);
+                place_snake_on_map(data->snakeMap,0);
             }
-            Update(data->snakeMap,0);
+            update(data->snakeMap,0);
         }
         memset(buffer, 0, BUFFER_SIZE);
-        ToString(&data->snakeMap->clientSnake[0],buffer);
+        to_string(&data->snakeMap->clientSnake[0],buffer);
         send(data->clientFd, buffer, (int)strlen(buffer), 0);
     }
     return NULL;

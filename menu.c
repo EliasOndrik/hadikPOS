@@ -3,60 +3,60 @@
 #include <string.h>
 #include <unistd.h>
 
-void DrawGameSetting(menu_t * menu, char key);
-void DrawPlayerCount(menu_t * menu, char key);
-void DrawButton(int x, int y, bool active, char* text) {
+void draw_game_setting(menu_t * menu, char key);
+void draw_player_count(menu_t * menu, char key);
+void draw_button(int x, int y, bool active, char* text) {
     if (active) {
-        SetBackgroundColor(ACTIVE_BUTTON);
+        set_background_color(ACTIVE_BUTTON);
     } else {
-        SetBackgroundColor(BUTTON_COLOR);
+        set_background_color(BUTTON_COLOR);
     }
-    DrawRectFull(x,y, BUTTON_WIDTH,BUTTON_HEIGHT);
-    MoveTo(((2*CONSOLE_WIDTH)-(int)strlen(text))/2 + 1 ,y + 2);
-    Write(text);
-    ResetTextEffect();
+    draw_rect_full(x,y, BUTTON_WIDTH,BUTTON_HEIGHT);
+    move_to(((2*CONSOLE_WIDTH)-(int)strlen(text))/2 + 1 ,y + 2);
+    print_text(text);
+    reset_text_effect();
 }
 
-void DrawControls() {
-    SetBackgroundColor(8);
-    DrawRect(2,(CONSOLE_HEIGHT/2)-1,3,3);
-    MoveTo(7,(CONSOLE_HEIGHT/2)+1);
-    Write("A ");
-    DrawRect(6,(CONSOLE_HEIGHT/2)-5,3,3);
-    MoveTo(15,(CONSOLE_HEIGHT/2)-3);
-    Write("W ");
-    DrawRect(6,(CONSOLE_HEIGHT/2)-1,3,3);
-    MoveTo(15,(CONSOLE_HEIGHT/2)+1);
-    Write("S ");
-    DrawRect(10,(CONSOLE_HEIGHT/2)-1,3,3);
-    MoveTo(23,(CONSOLE_HEIGHT/2)+1);
-    Write("D ");
+void draw_controls() {
+    set_background_color(8);
+    draw_rect(2,(CONSOLE_HEIGHT/2)-1,3,3);
+    move_to(7,(CONSOLE_HEIGHT/2)+1);
+    print_text("A ");
+    draw_rect(6,(CONSOLE_HEIGHT/2)-5,3,3);
+    move_to(15,(CONSOLE_HEIGHT/2)-3);
+    print_text("W ");
+    draw_rect(6,(CONSOLE_HEIGHT/2)-1,3,3);
+    move_to(15,(CONSOLE_HEIGHT/2)+1);
+    print_text("S ");
+    draw_rect(10,(CONSOLE_HEIGHT/2)-1,3,3);
+    move_to(23,(CONSOLE_HEIGHT/2)+1);
+    print_text("D ");
 
-    DrawRect(CONSOLE_WIDTH - 12,(CONSOLE_HEIGHT/2)-5,9,3);
-    MoveTo((CONSOLE_WIDTH*2)-21,(CONSOLE_HEIGHT/2)-3);
-    Write("    Enter     ");
-    DrawRect(CONSOLE_WIDTH - 12,(CONSOLE_HEIGHT/2)-1,9,3);
-    MoveTo((CONSOLE_WIDTH*2)-21,(CONSOLE_HEIGHT/2)+1);
-    Write("   ESCape/q   ");
+    draw_rect(CONSOLE_WIDTH - 12,(CONSOLE_HEIGHT/2)-5,9,3);
+    move_to((CONSOLE_WIDTH*2)-21,(CONSOLE_HEIGHT/2)-3);
+    print_text("    Enter     ");
+    draw_rect(CONSOLE_WIDTH - 12,(CONSOLE_HEIGHT/2)-1,9,3);
+    move_to((CONSOLE_WIDTH*2)-21,(CONSOLE_HEIGHT/2)+1);
+    print_text("   ESCape/q   ");
 }
 
-void DrawBorder() {
-    SetBackgroundColor(6);
-    DrawRect(15,0,30,CONSOLE_HEIGHT);
-    SetBackgroundColor(4);
-    DrawRect(0,0,15,CONSOLE_HEIGHT);
-    DrawRect(CONSOLE_WIDTH-15,0,15,CONSOLE_HEIGHT);
-    SetBackgroundColor(2);
-    DrawRect(2,2, 11,5);
-    SetBackgroundColor(3);
-    DrawRect(2,CONSOLE_HEIGHT - 7, 11,5);
-    SetBackgroundColor(5);
-    DrawRect(CONSOLE_WIDTH - 13 ,2, 11,5);
-    SetBackgroundColor(7);
-    DrawRect(CONSOLE_WIDTH - 13,CONSOLE_HEIGHT - 7, 11,5);
+void draw_border() {
+    set_background_color(6);
+    draw_rect(15,0,30,CONSOLE_HEIGHT);
+    set_background_color(4);
+    draw_rect(0,0,15,CONSOLE_HEIGHT);
+    draw_rect(CONSOLE_WIDTH-15,0,15,CONSOLE_HEIGHT);
+    set_background_color(2);
+    draw_rect(2,2, 11,5);
+    set_background_color(3);
+    draw_rect(2,CONSOLE_HEIGHT - 7, 11,5);
+    set_background_color(5);
+    draw_rect(CONSOLE_WIDTH - 13 ,2, 11,5);
+    set_background_color(7);
+    draw_rect(CONSOLE_WIDTH - 13,CONSOLE_HEIGHT - 7, 11,5);
 }
 
-void InitializeMenu(menu_t *menu) {
+void initialize_menu(menu_t *menu) {
     for (int i = 0; i <BUTTON_COUNT; i++) {
         menu->buttons->isActive = false;
     }
@@ -67,21 +67,21 @@ void InitializeMenu(menu_t *menu) {
     menu->playerCount = 1;
 }
 
-void DrawMenu() {
-    DrawBorder();
-    DrawControls();
+void draw_menu() {
+    draw_border();
+    draw_controls();
 }
 
-void ResetButtons(menu_t * menu) {
-    ResetTextEffect();
-    DrawRectFull((CONSOLE_WIDTH-BUTTON_WIDTH)/2,(CONSOLE_HEIGHT/2)-2*BUTTON_HEIGHT-2,BUTTON_WIDTH, BUTTON_HEIGHT*5);
+void reset_buttons(menu_t * menu) {
+    reset_text_effect();
+    draw_rect_full((CONSOLE_WIDTH-BUTTON_WIDTH)/2,(CONSOLE_HEIGHT/2)-2*BUTTON_HEIGHT-2,BUTTON_WIDTH, BUTTON_HEIGHT*5);
     menu->buttons[0].isActive =true;
     menu->buttons[1].isActive = false;
     menu->buttons[2].isActive = false;
     menu->buttons[3].isActive = false;
 }
 
-void ButtonScroll(menu_t * menu, char key, int buttonCount) {
+void button_scroll(menu_t * menu, char key, int buttonCount) {
     if (buttonCount > BUTTON_COUNT) {
         buttonCount = BUTTON_COUNT;
     } else if (buttonCount < 2) {
@@ -117,19 +117,19 @@ void ButtonScroll(menu_t * menu, char key, int buttonCount) {
     }
 }
 
-void DrawMainMenu(menu_t* menu,char key) {
-    ButtonScroll(menu,key,3);
+void draw_main_menu(menu_t* menu,char key) {
+    button_scroll(menu,key,3);
     if (key == '\r' || key == 'e') {
         if (menu->buttons[0].isActive) {
             menu->menuType = 5;
-            ResetTextEffect();
-            ResetButtons(menu);
-            DrawPlayerCount(menu,' ');
+            reset_text_effect();
+            reset_buttons(menu);
+            draw_player_count(menu,' ');
             return;
         }
         if (menu->buttons[1].isActive) {
             menu->menuType = 3;
-            ResetButtons(menu);
+            reset_buttons(menu);
             return;
         }
         if (menu->buttons[2].isActive) {
@@ -139,13 +139,13 @@ void DrawMainMenu(menu_t* menu,char key) {
     if (key == 27 || key == 'q') {
         menu->menuType = -1;
     }
-    DrawButton((CONSOLE_WIDTH-BUTTON_WIDTH)/2,(CONSOLE_HEIGHT/2)-BUTTON_HEIGHT-1,menu->buttons[0].isActive,"New game");
-    DrawButton((CONSOLE_WIDTH-BUTTON_WIDTH)/2,(CONSOLE_HEIGHT/2),menu->buttons[1].isActive,"Join");
-    DrawButton((CONSOLE_WIDTH-BUTTON_WIDTH)/2,(CONSOLE_HEIGHT/2)+BUTTON_HEIGHT + 1,menu->buttons[2].isActive,"Exit");
+    draw_button((CONSOLE_WIDTH-BUTTON_WIDTH)/2,(CONSOLE_HEIGHT/2)-BUTTON_HEIGHT-1,menu->buttons[0].isActive,"New game");
+    draw_button((CONSOLE_WIDTH-BUTTON_WIDTH)/2,(CONSOLE_HEIGHT/2),menu->buttons[1].isActive,"Join");
+    draw_button((CONSOLE_WIDTH-BUTTON_WIDTH)/2,(CONSOLE_HEIGHT/2)+BUTTON_HEIGHT + 1,menu->buttons[2].isActive,"Exit");
 }
 
-void DrawGameSetting(menu_t * menu, char key) {
-    ButtonScroll(menu,key,4);
+void draw_game_setting(menu_t * menu, char key) {
+    button_scroll(menu,key,4);
     if (key == '\r' || key == 'e') {
         if (menu->buttons[0].isActive) {
             menu->gameSize = (menu->gameSize+1)%3;
@@ -157,16 +157,16 @@ void DrawGameSetting(menu_t * menu, char key) {
             menu->time = (menu->time +30)%150;
         }
         if (menu->buttons[3].isActive) {
-            ResetTextEffect();
-            ResetButtons(menu);
+            reset_text_effect();
+            reset_buttons(menu);
             menu->menuType = 7;
             return;
         }
     }
     if (key == 27 ||key == 'q') {
         menu->menuType = 1;
-        ResetButtons(menu);
-        DrawMainMenu(menu,' ');
+        reset_buttons(menu);
+        draw_main_menu(menu,' ');
         return;
     }
     char * size = "< 28X28 >";
@@ -196,20 +196,20 @@ void DrawGameSetting(menu_t * menu, char key) {
     } else {
         sprintf(time,"< %d s >",menu->time);
     }
-    DrawButton((CONSOLE_WIDTH-BUTTON_WIDTH)/2,(CONSOLE_HEIGHT/2)-2*BUTTON_HEIGHT-2,menu->buttons[0].isActive,size);
-    DrawButton((CONSOLE_WIDTH-BUTTON_WIDTH)/2,(CONSOLE_HEIGHT/2)-BUTTON_HEIGHT-1,menu->buttons[1].isActive,game);
-    DrawButton((CONSOLE_WIDTH-BUTTON_WIDTH)/2,(CONSOLE_HEIGHT/2),menu->buttons[2].isActive,time);
-    DrawButton((CONSOLE_WIDTH-BUTTON_WIDTH)/2,(CONSOLE_HEIGHT/2)+BUTTON_HEIGHT + 1,menu->buttons[3].isActive,"Continue");
-    MoveTo(5*2+1, 19);
-    Write(size);
-    MoveTo(5*2+1, 20);
-    Write(game);
-    MoveTo(5*2+1, 21);
-    Write(time);
+    draw_button((CONSOLE_WIDTH-BUTTON_WIDTH)/2,(CONSOLE_HEIGHT/2)-2*BUTTON_HEIGHT-2,menu->buttons[0].isActive,size);
+    draw_button((CONSOLE_WIDTH-BUTTON_WIDTH)/2,(CONSOLE_HEIGHT/2)-BUTTON_HEIGHT-1,menu->buttons[1].isActive,game);
+    draw_button((CONSOLE_WIDTH-BUTTON_WIDTH)/2,(CONSOLE_HEIGHT/2),menu->buttons[2].isActive,time);
+    draw_button((CONSOLE_WIDTH-BUTTON_WIDTH)/2,(CONSOLE_HEIGHT/2)+BUTTON_HEIGHT + 1,menu->buttons[3].isActive,"Continue");
+    move_to(5*2+1, 19);
+    print_text(size);
+    move_to(5*2+1, 20);
+    print_text(game);
+    move_to(5*2+1, 21);
+    print_text(time);
 
 }
 
-void DrawPauseMenu(menu_t * menu, char key) {
+void draw_pause_menu(menu_t * menu, char key) {
     if (key == 'w' || key == 's') {
         if (menu->buttons[0].isActive) {
             menu->buttons[0].isActive = false;
@@ -222,8 +222,8 @@ void DrawPauseMenu(menu_t * menu, char key) {
     if (key == '\r' || key == 'e') {
         if (menu->buttons[0].isActive) {
             menu->menuType = 0;
-            ResetTextEffect();
-            DrawRectFull((CONSOLE_WIDTH-BUTTON_WIDTH)/2,(CONSOLE_HEIGHT/2)-BUTTON_HEIGHT-1,BUTTON_WIDTH, BUTTON_HEIGHT*3);
+            reset_text_effect();
+            draw_rect_full((CONSOLE_WIDTH-BUTTON_WIDTH)/2,(CONSOLE_HEIGHT/2)-BUTTON_HEIGHT-1,BUTTON_WIDTH, BUTTON_HEIGHT*3);
             menu->buttons[0].isActive =true;
             menu->buttons[1].isActive = false;
             menu->buttons[2].isActive = false;
@@ -233,27 +233,27 @@ void DrawPauseMenu(menu_t * menu, char key) {
         }
         if (menu->buttons[1].isActive) {
             menu->menuType = 1;
-            ResetButtons(menu);
-            DrawMainMenu(menu,' ');
+            reset_buttons(menu);
+            draw_main_menu(menu,' ');
             return;
         }
     }
     if (key == 27 || key == 'q') {
         menu->menuType = 1;
-        ResetButtons(menu);
-        DrawMainMenu(menu,' ');
+        reset_buttons(menu);
+        draw_main_menu(menu,' ');
         return;
     }
-    DrawButton((CONSOLE_WIDTH-BUTTON_WIDTH)/2,(CONSOLE_HEIGHT/2)-BUTTON_HEIGHT-1,menu->buttons[0].isActive,"Continue");
-    DrawButton((CONSOLE_WIDTH-BUTTON_WIDTH)/2,(CONSOLE_HEIGHT/2)+1,menu->buttons[1].isActive,"Leave");
+    draw_button((CONSOLE_WIDTH-BUTTON_WIDTH)/2,(CONSOLE_HEIGHT/2)-BUTTON_HEIGHT-1,menu->buttons[0].isActive,"Continue");
+    draw_button((CONSOLE_WIDTH-BUTTON_WIDTH)/2,(CONSOLE_HEIGHT/2)+1,menu->buttons[1].isActive,"Leave");
 }
 
-void JoinServer(menu_t * menu, char key) {
+void join_server(menu_t * menu, char key) {
     menu->menuType = 0;
     sleep(3);
 }
 
-void DrawPlayerCount(menu_t * menu, char key) {
+void draw_player_count(menu_t * menu, char key) {
     if (key == 'w' || key == 's') {
         if (menu->buttons[0].isActive) {
             menu->buttons[0].isActive = false;
@@ -272,57 +272,57 @@ void DrawPlayerCount(menu_t * menu, char key) {
             menu->menuType = 2;
             menu->playerCount = 4;
         }
-        ResetButtons(menu);
-        DrawGameSetting(menu,' ');
+        reset_buttons(menu);
+        draw_game_setting(menu,' ');
         return;
     }
     if (key == 27 || key == 'q') {
         menu->menuType = 1;
-        ResetButtons(menu);
-        DrawMainMenu(menu,' ');
+        reset_buttons(menu);
+        draw_main_menu(menu,' ');
         return;
     }
-    DrawButton((CONSOLE_WIDTH-BUTTON_WIDTH)/2,(CONSOLE_HEIGHT/2)-BUTTON_HEIGHT-1,menu->buttons[0].isActive,"Singleplayer");
-    DrawButton((CONSOLE_WIDTH-BUTTON_WIDTH)/2,(CONSOLE_HEIGHT/2)+1,menu->buttons[1].isActive,"Multiplayer");
+    draw_button((CONSOLE_WIDTH-BUTTON_WIDTH)/2,(CONSOLE_HEIGHT/2)-BUTTON_HEIGHT-1,menu->buttons[0].isActive,"Singleplayer");
+    draw_button((CONSOLE_WIDTH-BUTTON_WIDTH)/2,(CONSOLE_HEIGHT/2)+1,menu->buttons[1].isActive,"Multiplayer");
 }
 
-void Disconnect(menu_t * menu, char key) {
+void disconnect(menu_t * menu, char key) {
     menu->menuType = 1;
-    DrawMainMenu(menu,' ');
+    draw_main_menu(menu,' ');
 }
-void CreateAndJoinServer(menu_t * menu, char key) {
+void create_and_join_server(menu_t * menu, char key) {
     menu->menuType = 0;
     sleep(3);
 }
 
-int UpdateMenu(menu_t * menu,char key) {
+int update_menu(menu_t * menu,char key) {
     switch (menu->menuType) {
         case 0 :
             if (key == 'q' || key == 27) {
                 menu->menuType = 4;
-                DrawPauseMenu(menu,' ');
+                draw_pause_menu(menu,' ');
             }
             break;
         case 1:
-            DrawMainMenu(menu,key);
+            draw_main_menu(menu,key);
             break;
         case 2:
-            DrawGameSetting(menu,key);
+            draw_game_setting(menu,key);
             break;
         case 3:
-            JoinServer(menu,key);
+            join_server(menu,key);
             break;
         case 4:
-            DrawPauseMenu(menu,key);
+            draw_pause_menu(menu,key);
             break;
         case 5:
-            DrawPlayerCount(menu,key);
+            draw_player_count(menu,key);
             break;
         case 6:
-            Disconnect(menu, key);
+            disconnect(menu, key);
             break;
         case 7:
-            CreateAndJoinServer(menu,key);
+            create_and_join_server(menu,key);
             break;
         default:
             return -1;
@@ -331,7 +331,7 @@ int UpdateMenu(menu_t * menu,char key) {
 }
 
 
-void CreateButtons(menu_t * menu) {
+void create_buttons(menu_t * menu) {
     for (int i = 0; i < BUTTON_COUNT; i++) {
         menu->buttons[i].isActive = false;
     }

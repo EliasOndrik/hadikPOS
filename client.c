@@ -54,17 +54,17 @@ int main() {
     char buffer[BUFFER_SIZE] ={0};
     recv(client_fd, buffer, BUFFER_SIZE - 1, 0);
     client_snake_t snake;
-    InitializeSnake(&snake);
-    ReadString(buffer, &snake);
+    initialize_snake(&snake);
+    read_string(buffer, &snake);
     srand(time(NULL));
-    ClearScreen();
-    SetCursorVisibility(false);
+    clear_screen();
+    set_cursor_visibility(false);
 
-    DrawMenu();
+    draw_menu();
     menu_t menu;
-    InitializeMenu(&menu);
-    CreateButtons(&menu);
-    UpdateMenu(&menu,' ');
+    initialize_menu(&menu);
+    create_buttons(&menu);
+    update_menu(&menu,' ');
 
 
     snake.snake.isActive = false;
@@ -82,26 +82,26 @@ int main() {
     thread_args.canUpdate = true;
     thread_args.isRunning = 1;
     thread_args.serverAddr = &server_addr;
-    pthread_t input_thread, draw_thread;
-    pthread_create(&input_thread, NULL, InputThread, &thread_args);
-    pthread_create(&draw_thread, NULL, DrawThread, &thread_args);
+    pthread_t inputThread, drawThread;
+    pthread_create(&inputThread, NULL, input_thread, &thread_args);
+    pthread_create(&drawThread, NULL, draw_thread, &thread_args);
 
-    pthread_join(input_thread, NULL);
-    pthread_join(draw_thread, NULL);
+    pthread_join(inputThread, NULL);
+    pthread_join(drawThread, NULL);
 
     pthread_mutex_destroy(&mutex);
     pthread_cond_destroy(&sendData);
     close(client_fd);
-    ResetTextEffect();
-    SetCursorVisibility(true);
-    ClearScreen();
+    reset_text_effect();
+    set_cursor_visibility(true);
+    clear_screen();
 #ifdef _WIN32
     WSACleanup();
 #endif
     return 0;
 }
 
-void * InputThread(void *arg) {
+void * input_thread(void *arg) {
     thread_args_t * data = arg;
     char buffer[BUFFER_SIZE] = {0};
     while (1) {
@@ -111,37 +111,37 @@ void * InputThread(void *arg) {
         }
         if (kbhit()) {
             char key = (char)getch();
-            int state = UpdateMenu(data->menu,key);
+            int state = update_menu(data->menu,key);
             if (state == -1) {
                 data->isRunning = -1;
             }
             if (state == 0) {
                 if (key == 'w' && data->snake->snake.direction.y != 1) {
-                    SetPositionXY(&data->snake->snake.direction,0,-1);
+                    set_position_xy(&data->snake->snake.direction,0,-1);
                 }
                 if (key == 's' && data->snake->snake.direction.y != -1) {
-                    SetPositionXY(&data->snake->snake.direction,0,+1);
+                    set_position_xy(&data->snake->snake.direction,0,+1);
                 }
                 if (key == 'a' && data->snake->snake.direction.x != 1) {
-                    SetPositionXY(&data->snake->snake.direction,-1,0);
+                    set_position_xy(&data->snake->snake.direction,-1,0);
                 }
                 if (key == 'd' && data->snake->snake.direction.x != -1) {
-                    SetPositionXY(&data->snake->snake.direction,+1,0);
+                    set_position_xy(&data->snake->snake.direction,+1,0);
                 }
                 data->snake->snake.isActive = true;
             } else if (state == 4) {
                 data->snake->snake.isActive = false;
             } else if (state == 7 ) {
-                UpdateMenu(data->menu,' ');
+                update_menu(data->menu,' ');
                 data->snake->snake.isActive = true;
 
             } else if (state == 6) {
-                UpdateMenu(data->menu,' ');
+                update_menu(data->menu,' ');
                 data->snake->snake.isActive = true;
                 close(data->clientFd);
                 data->clientFd = (int)socket(AF_INET, SOCK_STREAM, 0);
             } else if (state == 3) {
-                UpdateMenu(data->menu,' ');
+                update_menu(data->menu,' ');
                 data->snake->snake.isActive = true;
             } else {
                 data->snake->snake.isActive = false;
@@ -154,7 +154,7 @@ void * InputThread(void *arg) {
         data->canUpdate = false;
         pthread_mutex_unlock(data->mutex);
         memset(buffer, 0, BUFFER_SIZE);
-        GiveServerString(data->snake, buffer);
+        give_server_string(data->snake, buffer);
         send(data->clientFd, buffer, (int)strlen(buffer), 0);
         if (data->isRunning < 0) {
             break;
@@ -163,7 +163,7 @@ void * InputThread(void *arg) {
     return NULL;
 }
 
-void * DrawThread(void *arg) {
+void * draw_thread(void *arg) {
     thread_args_t * data = arg;
     char buffer[BUFFER_SIZE] = {0};
     while (1) {
@@ -178,16 +178,16 @@ void * DrawThread(void *arg) {
             break;
         }
         pthread_mutex_lock(data->mutex);
-        ReadString(buffer, data->snake);
+        read_string(buffer, data->snake);
         pthread_mutex_unlock(data->mutex);
 
         if (data->snake->snake.isActive) {
             if (!alive) {
-                DrawSnakeMap(data->snake);
-                DrawSnakeOnMap(data->snake);
+                draw_snake_map(data->snake);
+                draw_snake_on_map(data->snake);
             }
-            Draw(data->snake);
-            DrawApple(data->snake);
+            draw(data->snake);
+            draw_apple(data->snake);
         }
 
         pthread_mutex_lock(data->mutex);

@@ -28,5 +28,5 @@ typedef struct ThreadArgs {
     bool canUpdate;
 } thread_args_t;
 
-void * InputThread(void * arg);
-void * DrawThread(void* arg);
+void * input_thread(void * arg);
+void * draw_thread(void* arg);
