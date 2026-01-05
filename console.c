@@ -2,6 +2,7 @@
 
 void MoveTo(int x, int y) {
     printf("\x1B[%d;%dH",y,x);
+    //fputs("\x1B[10;10H", stdout);
 }
 
 void DrawRect(int x, int y, int width, int height) {

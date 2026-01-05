@@ -26,6 +26,7 @@ typedef struct Menu {
     int playerCount;
 } menu_t;
 
+void InitializeMenu(menu_t *menu);
 void DrawMenu();
 int UpdateMenu(menu_t * menu,char key);
 void CreateButtons(menu_t * menu);

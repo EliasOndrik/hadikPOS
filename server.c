@@ -52,6 +52,7 @@ int main(int argc, char * argv[]) {
     printf("Server pocuva ...\n");
 
     snake_map_t snakeMap;
+    InitializeMap(&snakeMap);
     SetSnakeMap(&snakeMap);
 
     int client_fd;

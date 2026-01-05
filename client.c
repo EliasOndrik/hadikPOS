@@ -54,6 +54,7 @@ int main() {
     char buffer[BUFFER_SIZE] ={0};
     recv(client_fd, buffer, BUFFER_SIZE - 1, 0);
     client_snake_t snake;
+    InitializeSnake(&snake);
     ReadString(buffer, &snake);
     srand(time(NULL));
     ClearScreen();
@@ -61,6 +62,7 @@ int main() {
 
     DrawMenu();
     menu_t menu;
+    InitializeMenu(&menu);
     CreateButtons(&menu);
     UpdateMenu(&menu,' ');
 
@@ -112,7 +114,6 @@ void * InputThread(void *arg) {
             int state = UpdateMenu(data->menu,key);
             if (state == -1) {
                 data->isRunning = -1;
-                break;
             }
             if (state == 0) {
                 if (key == 'w' && data->snake->snake.direction.y != 1) {

@@ -56,6 +56,17 @@ void DrawBorder() {
     DrawRect(CONSOLE_WIDTH - 13,CONSOLE_HEIGHT - 7, 11,5);
 }
 
+void InitializeMenu(menu_t *menu) {
+    for (int i = 0; i <BUTTON_COUNT; i++) {
+        menu->buttons->isActive = false;
+    }
+    menu->gameSize = BIG;
+    menu->gameType = LOOP;
+    menu->menuType = 1;
+    menu->time = 0;
+    menu->playerCount = 1;
+}
+
 void DrawMenu() {
     DrawBorder();
     DrawControls();
@@ -211,7 +222,12 @@ void DrawPauseMenu(menu_t * menu, char key) {
     if (key == '\r' || key == 'e') {
         if (menu->buttons[0].isActive) {
             menu->menuType = 0;
-            ResetButtons(menu);
+            ResetTextEffect();
+            DrawRectFull((CONSOLE_WIDTH-BUTTON_WIDTH)/2,(CONSOLE_HEIGHT/2)-BUTTON_HEIGHT-1,BUTTON_WIDTH, BUTTON_HEIGHT*3);
+            menu->buttons[0].isActive =true;
+            menu->buttons[1].isActive = false;
+            menu->buttons[2].isActive = false;
+            menu->buttons[3].isActive = false;
             sleep(3);
             return;
         }
